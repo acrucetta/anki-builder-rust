@@ -1,0 +1,10 @@
+
+
+main
+    src
+        main.rs
+        pdf_parser
+           parse_pdf.rs
+        server
+            anki_fetcher.rs
+    
