@@ -1,18 +1,41 @@
-use anki_builder_rust::Config;
-use anki_builder_rust::run;
+use clap::Parser;
+use log::{error, info};
 use std::env;
+use anki_builder_rust::run;
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    let config = Config::new(&args).unwrap_or_else(|err| {
-        println!("Problem parsing arguments: {}", err);
-        std::process::exit(1);
-    });
-
-    if let Err(e) = run(config) {
-        println!("Application error: {}", e);
-        std::process::exit(1);
-    }
+#[derive(Parser)]
+struct Cli {
+    command: String,
+    path: std::path::PathBuf,
 }
 
+enum Command {
+    Ankify,
+}
+
+#[derive(Debug)]
+struct CustomError(String);
+
+fn main() -> Result<(), CustomError> {
+    env_logger::init();
+    info!("Starting the program");
+
+    let args = Cli::parse();
+    let result = std::fs::read_to_string(args.path);
+    let content = match result {
+        Ok(content) => content,
+        Err(error) => return Err(CustomError(error.to_string())),
+    };
+    info!("File content preview: {}", &content[0..20]);
+
+    let command = match args.command.as_str() {
+        "ankify" => Command::Ankify,
+        _ => return Err(CustomError(format!("Unknown command: {}", args.command))),
+    };
+
+    match command {
+        Command::Ankify => run(&content),
+    };
+
+    Ok(())
+}
