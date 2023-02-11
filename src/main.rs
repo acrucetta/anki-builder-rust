@@ -1,7 +1,6 @@
 use clap::Parser;
-use log::{error, info};
-use std::env;
-use anki_builder_rust::run;
+use log::{info};
+mod parser;
 
 #[derive(Parser)]
 struct Cli {
@@ -34,7 +33,7 @@ fn main() -> Result<(), CustomError> {
     };
 
     match command {
-        Command::Ankify => run(&content),
+        Command::Ankify => parser::parse_pdf(&content),
     };
 
     Ok(())
